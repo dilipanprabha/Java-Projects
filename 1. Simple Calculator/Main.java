@@ -53,14 +53,14 @@ public class Main {
 
     public static void desc() {
         System.out.println("==============================");
-            System.out.println("======Simple Calculator=======");
-            System.out.println("==============================");
-            System.out.println("          0 -> EXIT        ");
-            System.out.println("          1 -> +           ");
-            System.out.println("          2 -> -           ");
-            System.out.println("          3 -> *           ");
-            System.out.println("          4 -> /           ");
-            System.out.print("Select a number: ");
+        System.out.println("======Simple Calculator=======");
+        System.out.println("==============================");
+        System.out.println("          0 -> EXIT        ");
+        System.out.println("          1 -> +           ");
+        System.out.println("          2 -> -           ");
+        System.out.println("          3 -> *           ");
+        System.out.println("          4 -> /           ");
+        System.out.print("Select a number: ");
     }
 
     public static void operation(int value, double num1, double num2) {
