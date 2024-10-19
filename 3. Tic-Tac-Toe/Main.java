@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -68,6 +69,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         
         char[][] grid = new char[3][3];
+        fillSpace(grid);
         int n, i = 0, temp = 0;
         String playerOneName, playerSecondName;
         int playerOneOpt;
@@ -95,7 +97,7 @@ public class Main {
                 scanner.nextLine();
 
                 if (playerOneOpt == 0) {
-                    System.out.println("\n---BYE---");
+                    System.out.println("\nGoodbye, The grid will miss you!");
                     return;
                 } else if (playerOneOpt < 1 || playerOneOpt > 2) throw new Exception("\n!!!Naah... Choose a correct number!!!\n");
                 else {
@@ -119,23 +121,30 @@ public class Main {
         
         gridWithNum();
         while (true) {
-            if (i == 9) {
-                player1.addDraw();
-                player2.addDraw();
+            if (i > 8) {
                 String yesOrNo;
-                System.out.println("Stalemate! It’s a tie – time to go for another round!");
-                System.out.print("Time for a rematch? [yes|no] : " );
-                try {
-                    scanner.nextLine();
-                    yesOrNo = scanner.nextLine();
-                } catch (InputMismatchException e) {
-                    System.out.println("\n!!!That doesn’t seem right. Please choose a valid spot!!!!\n");
-                    continue;
+
+                if (i == 9) {
+                    player1.addDraw();
+                    player2.addDraw();
+                    System.out.println("Stalemate! It’s a tie – time to go for another round!");
                 }
-                if (yesOrNo.toLowerCase().equals("yes")) {
+
+                System.out.print("\nTime for a rematch? [yes|no] : " );
+                // scanner.nextLine();
+                yesOrNo = scanner.nextLine().toLowerCase();
+                if (yesOrNo.equals("yes")) {
+                    gridWithNum();
+                    fillSpace(grid);
                     i = 0;
                     continue;
-                } else break;
+                } else if (yesOrNo.equals("no")){
+                    System.out.println("\nHope you had fun, come back for more Tic Tac Toe action\n");
+                    break;
+                } else {
+                    System.out.println("\nPlease type a valid one.\n");
+                    continue;
+                }
             }
 
             try {
@@ -143,7 +152,6 @@ public class Main {
                     System.out.print(player1.getName() + ": Which place do you wanna to select? -> ");
                     n = scanner.nextInt();
                     if (n > 9) throw new Exception("\n!!!Naah... Choose a correct number!!!\n");
-                    // boolean result = symbolInsert(grid, player1, n);
                     boolean result = check(grid, n);
                     if (result) {
                         result = symbolInsert(grid, player1, n);
@@ -156,7 +164,8 @@ public class Main {
                         player2.addLose();
                         System.out.println("Congratulations, " + player1.getName() + "! You’ve mastered the grid and claimed victory!");
                         result(player1, player2);
-                        break;
+                        i = 10;
+                        continue;
                     }
                     temp = 1;
                     i++;
@@ -176,7 +185,8 @@ public class Main {
                         player1.addLose();
                         System.out.println("Congratulations, " + player2.getName() + "! You’ve mastered the grid and claimed victory!");
                         result(player2, player1);
-                        break;
+                        i = 10;
+                        continue;
                     }
                     temp = 0;
                     i++;
@@ -231,34 +241,40 @@ public class Main {
         return result;
     }
 
+    public static void fillSpace(char[][] c) {
+        for (char[] arr: c) {
+            Arrays.fill(arr, ' ');
+        }
+    }
+
     public static boolean check(char[][] c, int num) {
         switch (num) {
             case 1 -> {
-                if (c[0][0] == 0) return true;
+                if (c[0][0] == ' ') return true;
             }
             case 2 -> {
-                if (c[0][1] == 0) return true;
+                if (c[0][1] == ' ') return true;
             }
             case 3 -> {
-                if (c[0][2] == 0) return true;
+                if (c[0][2] == ' ') return true;
             }
             case 4 -> {
-                if (c[1][0] == 0) return true;
+                if (c[1][0] == ' ') return true;
             }
             case 5 -> {
-                if (c[1][1] == 0) return true;
+                if (c[1][1] == ' ') return true;
             }
             case 6 -> {
-                if (c[1][2] == 0) return true;
+                if (c[1][2] == ' ') return true;
             }
             case 7 -> {
-                if (c[2][0] == 0) return true;
+                if (c[2][0] == ' ') return true;
             }
             case 8 -> {
-                if (c[2][1] == 0) return true;
+                if (c[2][1] == ' ') return true;
             }
             case 9 -> {
-                if (c[2][2] == 0) return true;
+                if (c[2][2] == ' ') return true;
             }
         }
         return false;
@@ -313,7 +329,7 @@ public class Main {
             }
             case 9 -> {
                 if ((c[2][2] == c[1][1]) && (c[1][1] == c[0][0])) return true;
-                else if ((c[2][2] == c[1][2]) && (c[1][2] == c[1][2])) return true;
+                else if ((c[2][2] == c[1][2]) && (c[1][2] == c[0][2])) return true;
                 else if ((c[2][0] == c[2][1]) && (c[2][1] == c[2][2])) return true;
                 else return false;
             }
