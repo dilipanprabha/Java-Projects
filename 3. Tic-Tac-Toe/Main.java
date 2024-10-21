@@ -119,7 +119,6 @@ public class Main {
                 }
 
                 System.out.print("\nTime for a rematch? [yes|no] : " );
-                // scanner.nextLine();
                 yesOrNo = scanner.nextLine().toLowerCase();
                 if (yesOrNo.equals("yes")) {
                     gridWithNum();
