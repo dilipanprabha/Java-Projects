@@ -183,7 +183,7 @@ public class Main {
         }
         s1.addGrades(grades);
         System.out.println(s1);
+        s.close();
     }
 
-    
 }
