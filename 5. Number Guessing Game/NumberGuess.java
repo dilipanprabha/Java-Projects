@@ -48,8 +48,8 @@ class Game {
             String expression = "^[a-zA-Z\\s]+";
             System.out.print("Enter your name: ");
             try {
-                String name = scanner.nextLine().toLowerCase();
-                if (!name.matches(expression)) throw new Exception("Enter alphapatic only");
+                String name = scanner.nextLine();
+                if (!name.toLowerCase().matches(expression)) throw new Exception("Enter alphapatic only");
                 return name;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -57,17 +57,17 @@ class Game {
         }
     }
 
-    public static int getValidLevel(Scanner scanner) {
+    public static int getValidInput(Scanner scanner, int min, int max, String prompt) {
         while (true) {
-            System.out.print("Enter level: ");
+            System.out.print(prompt);
             try {
-                int userSelect = scanner.nextInt();
-                scanner.nextLine();
-                if (userSelect < 1 || 3 < userSelect) throw new Exception("Number should be between 1 and 3.");
-                return userSelect;
+                int input = scanner.nextInt();
+                scanner.nextLine(); // clear buffer
+                if (input < min || input > max) throw new Exception("⚠️ Enter a number between " + min + " and " + max + ".");
+                return input;
             } catch (InputMismatchException e) {
                 System.out.println("Please enter a valid number.");
-                scanner.nextLine(); // Clear invalid input
+                scanner.nextLine(); // clear invalid input
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -79,7 +79,7 @@ class Game {
 
         System.out.println();
         for (int i = 0; i < levels.length; i++) {
-            System.out.println((i + 1) + " --> " + levels[i].name());
+            System.out.println((i + 1) + " --> " + levels[i].name() + " " + levels[i].getValue() + " attempts");
         }
         System.out.println();
     }
@@ -88,11 +88,11 @@ class Game {
         count++;
 
         int temp = 0;
-        int userSelect;
+        int userGuess;
 
         if (attempts == 0) return;
         else {
-            System.out.println("\nYou've " + attempts + " attempts\n");
+            System.out.println("\nYou've got " + attempts + " attempts\n");
         }
         secretNumber = secretNumber();
 
@@ -108,8 +108,8 @@ class Game {
                 System.out.println("================");
 
                 System.out.print("\nEnter your guess: ");
-                userSelect = getValidNumber(scanner);
-                if (checkWinOrLose(userSelect)) {
+                userGuess = getValidInput(scanner, 1, 100, "\nEnter your guess: ");
+                if (checkWinOrLose(userGuess)) {
                     displayResults();
 
                     if (playAgain(scanner)) {
@@ -120,17 +120,15 @@ class Game {
                         return;
                     }
                 } else {
-                    System.out.println("\nWrong");
-                    if (secretNumber < userSelect) {
-                        System.out.println("Your guess is too high! Try a lower number. ⬇️\n");
+                    if (secretNumber < userGuess) {
+                        System.out.println("\nYour guess is too high! Try a lower number. ⬇️\n");
                     } else {
-                        System.out.println("Your guess is too low! Try a higher number. ⬆️\n");
+                        System.out.println("\nYour guess is too low! Try a higher number. ⬆️\n");
                     }
                 }
             } else {
-                System.out.print("\nEnter your guess: ");
-                userSelect = getValidNumber(scanner);
-                if (checkWinOrLose(userSelect)) {
+                userGuess = getValidInput(scanner, 1, 100, "\nEnter your guess: ");
+                if (checkWinOrLose(userGuess)) {
                     displayResults();
                     
                     if (playAgain(scanner)) {
@@ -140,11 +138,10 @@ class Game {
                         return;
                     }
                 } else {
-                    System.out.println("\nWrong");
-                    if (secretNumber < userSelect) {
-                        System.out.println("Your guess is too high! Try a lower number. ⬇️\n");
+                    if (secretNumber < userGuess) {
+                        System.out.println("\nYour guess is too high! Try a lower number. ⬇️\n");
                     } else {
-                        System.out.println("Your guess is too low! Try a higher number. ⬆️\n");
+                        System.out.println("\nYour guess is too low! Try a higher number. ⬆️\n");
                     }
                 }
             }            
@@ -156,9 +153,9 @@ class Game {
 
         losses++;
 
-        System.out.println("Oh no! 😞 You've used all your attempts.");
+        System.out.println("\nOh no! 😞 You've used all your attempts.");
         System.out.println("Better luck next time! The number was " + secretNumber + ".");
-        System.out.println("Thank you for playing!");
+        System.out.println("Thank you for playing!\n");
 
         if (playAgain(scanner)) {
             play(scanner);
@@ -175,8 +172,8 @@ class Game {
         else return false;
     }
 
-    public boolean checkWinOrLose(int userSelect) {
-        if (check(secretNumber, userSelect)) {
+    public boolean checkWinOrLose(int userGuess) {
+        if (check(secretNumber, userGuess)) {
             System.out.println("🎉 Congratulations! 🎉");
             System.out.println("You guessed the number correctly! Well done!");
             System.out.println("Thanks for playing! 😊");
@@ -198,9 +195,8 @@ class Game {
     }
 
     public boolean checkHint(Scanner scanner) {
-        System.out.println("scores " + scores + " count " + count);
         if (count == 0 || scores < 2) {
-            System.out.println("You've don't have enough points to view hints.");
+            System.out.println("\nYou've don't have enough points to view hints.");
             return false;
         }
         
@@ -215,29 +211,13 @@ class Game {
         }
     }
 
-    public int getValidNumber(Scanner scanner) {
-        while (true) {
-            try {
-                int userSelect = scanner.nextInt();
-                scanner.nextLine();
-                if (userSelect < 1 || 100 < userSelect) throw new Exception("⚠️ Invalid input! Please enter a valid number between 1 and 100.");
-                return userSelect;
-            } catch (InputMismatchException e) {
-                System.out.println("Please enter a valid number.");
-                scanner.nextLine(); // Clear invalid input
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
-    }
-
     public String getValidYesOrNo(Scanner scanner, String msg) {
         while (true) {
             System.out.print(msg);
             try {
-                String userSelect = scanner.nextLine().toLowerCase();
-                if (!userSelect.equals("no") && !userSelect.equals("yes")) throw new Exception("⚠️ Invalid input! Please enter a valid input [yes|no]");
-                return userSelect;
+                String userGuess = scanner.nextLine().toLowerCase();
+                if (!userGuess.equals("no") && !userGuess.equals("yes")) throw new Exception("⚠️ Invalid input! Please enter a valid input [yes|no]");
+                return userGuess;
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -259,15 +239,15 @@ class Game {
 
     public String hint(int secretNumber) {
         if (secretNumber >= 1 && 20 >= secretNumber) {
-            return Hint.TOO_LOW.toString();
+            return Hint.TOO_LOW.toString() + "[1 - 20]";
         } else if (secretNumber >= 21 && 40 >= secretNumber) {
-            return Hint.LOW.toString();
+            return Hint.LOW.toString() + "[21 - 40]";
         } else if (secretNumber >= 41 && 60 >= secretNumber) {
-            return Hint.MEDIUM.toString();
+            return Hint.MEDIUM.toString() + "[41 - 60]";
         } else if (secretNumber >= 61 && 80 >= secretNumber) {
-            return Hint.HIGH.toString();
+            return Hint.HIGH.toString() + "[61 - 80]";
         } else {
-            return Hint.TOO_HIGH.toString();
+            return Hint.TOO_HIGH.toString() + "[81 - 100]";
         }
     }
 
@@ -281,7 +261,7 @@ class Game {
     }
 
     public String toString() {
-        return "NumberGuess [Name=" + playerName + ", level=" + level + ", wins=" + wins + ", losses=" + losses
+        return "NumberGuess [Name=" + playerName + ", wins=" + wins + ", losses=" + losses
                 + ", scores=" + scores + "]";
     }
 }
@@ -296,7 +276,7 @@ public class NumberGuess {
         Game.welcomeMessage();
         name = Game.getValidName(scanner);
         Game.displayLevels();
-        level = Game.getValidLevel(scanner);
+        level = Game.getValidInput(scanner, 1, 3, "Enter level: ");
 
         Game g = new Game(name, level);
         g.play(scanner);
