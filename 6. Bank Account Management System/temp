@@ -1,0 +1,113 @@
+1. Welcome Message
+java
+Copy code
+System.out.println("🏦 Welcome to XYZ Bank Account Management System!");
+System.out.println("Please select an option to get started.");
+2. Main Menu Options
+java
+Copy code
+System.out.println("1. Create a new account");
+System.out.println("2. View account details");
+System.out.println("3. Deposit funds");
+System.out.println("4. Withdraw funds");
+System.out.println("5. Transfer funds");
+System.out.println("6. Exit");
+System.out.print("Enter your choice: ");
+3. Account Creation Messages
+Account Created Successfully
+
+java
+Copy code
+System.out.println("🎉 Account created successfully! Your account number is " + accountNumber + ".");
+Account Creation Error
+
+java
+Copy code
+System.out.println("⚠️ Error creating account. Please try again.");
+4. View Account Details Message
+java
+Copy code
+System.out.println("Account Details:");
+System.out.println("Account Number: " + accountNumber);
+System.out.println("Account Holder: " + accountHolderName);
+System.out.println("Balance: $" + balance);
+System.out.println("Account Type: " + accountType);
+5. Deposit Messages
+Enter Deposit Amount
+
+java
+Copy code
+System.out.print("Enter the amount to deposit: ");
+Successful Deposit
+
+java
+Copy code
+System.out.println("💵 Deposit successful! New balance: $" + newBalance);
+Deposit Error (Invalid Amount)
+
+java
+Copy code
+System.out.println("⚠️ Invalid amount. Please enter a positive value.");
+6. Withdrawal Messages
+Enter Withdrawal Amount
+
+java
+Copy code
+System.out.print("Enter the amount to withdraw: ");
+Successful Withdrawal
+
+java
+Copy code
+System.out.println("💸 Withdrawal successful! New balance: $" + newBalance);
+Insufficient Funds
+
+java
+Copy code
+System.out.println("⚠️ Insufficient funds! Your balance is $" + balance);
+7. Transfer Messages
+Enter Transfer Details
+
+java
+Copy code
+System.out.print("Enter the recipient's account number: ");
+System.out.print("Enter the amount to transfer: ");
+Successful Transfer
+
+java
+Copy code
+System.out.println("✅ Transfer successful! $" + amount + " transferred to account " + recipientAccount);
+Transfer Error (Insufficient Funds)
+
+java
+Copy code
+System.out.println("⚠️ Transfer failed. Insufficient funds. Your current balance is $" + balance);
+Transfer Error (Invalid Account)
+
+java
+Copy code
+System.out.println("⚠️ Transfer failed. Recipient account number is invalid.");
+8. Exit Message
+java
+Copy code
+System.out.println("Thank you for using XYZ Bank Account Management System. Have a great day! 🌞");
+9. Error Messages
+Invalid Choice
+
+java
+Copy code
+System.out.println("⚠️ Invalid choice. Please select a valid option from the menu.");
+General Error
+
+java
+Copy code
+System.out.println("⚠️ An unexpected error occurred. Please try again later.");
+These messages will guide users through each step of the bank account management process, ensuring a user-friendly experience.
+
+
+
+
+
+
+
+
+20000000000
