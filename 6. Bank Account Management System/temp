@@ -105,3 +105,19 @@ These messages will guide users through each step of the bank account management
 
 
 
+
+
+
+    /** 
+     * Returns the valid string of the user name, email, and phone
+     * 
+     * @param scanner object of the Scanner class to get input from user
+     * @param prompt string to display the message to the user
+     * @param match string used to display a error message based on the string(name/email/phone)
+     * @param length used to display a error message based on the size
+     * @return the valid String
+     */
+
+
+
+     12-345-678901-1
