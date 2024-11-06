@@ -117,7 +117,3 @@ These messages will guide users through each step of the bank account management
      * @param length used to display a error message based on the size
      * @return the valid String
      */
-
-
-
-     12-345-678901-1
