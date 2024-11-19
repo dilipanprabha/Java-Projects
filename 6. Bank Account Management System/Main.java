@@ -12,7 +12,7 @@ class BankBranch {
     private String branchCode;
     private String branchName;
     private String ifscCode;
-    private String bankNum = "01";
+    private String bankNum;
 
     public BankBranch(String bankCode, String bankName, String branchCode, String branchName, String ifscCode) {
         this.bankCode = bankCode;
@@ -20,34 +20,55 @@ class BankBranch {
         this.branchCode = branchCode;
         this.branchName = branchName;
         this.ifscCode = ifscCode;
+        this.bankNum = "01";
     }
-
+    
+    /** 
+     * @return BankNumber
+     */
     public String getBankNum() {
         return bankNum;
     }
 
+    /** 
+     * @return BankCode
+     */
     public String getBankCode() {
         return bankCode;
     }
 
+    /** 
+     * @return BankName
+     */
     public String getBankName() {
         return bankName;
     }
 
+    
+    /** 
+     * @return BranchCode
+     */
     public String getBranchCode() {
         return branchCode;
     }
 
+    /** 
+     * @return BranchName
+     */
     public String getBranchName() {
         return branchName;
     }
 
+    /** 
+     * @return IFSC-code
+     */
     public String getIfscCode() {
         return ifscCode;
     }
 }
 
 class Account {
+    
     enum AccountType {
         SAVINGS(1),
         CHECKING(2),
@@ -127,6 +148,15 @@ class Account {
         return accountType.toString();
     }
 
+    /** 
+     * Returns the valid string of the user name, email, amount, account and phone
+     * 
+     * @param scanner object of the Scanner class to get input from user
+     * @param prompt string to display the message to the user
+     * @param match string used to display a error message based on the string(name/email/phone/amount/account)
+     * @param length used to display a error message based on the size
+     * @return the valid String
+     */
     public static String getValidString(Scanner scanner, String prompt, String match, int length) {
         Pattern emailPattern = Pattern.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?", Pattern.CASE_INSENSITIVE);
         String namePattern = "^[a-zA-Z\\s]+";
@@ -156,6 +186,15 @@ class Account {
         }
     }
     
+    /** 
+     * Returns the valid number based on the min and max and also solve common errors.
+     * 
+     * @param scanner object of the Scanner class to get input from user
+     * @param prompt string to display the message to the user
+     * @param min int used to check the number, like the given number is not less than min.
+     * @param max int used to check the number, like the given number is not greater than max.
+     * @return the valid Number
+     */
     public static int getValidNumber(Scanner scanner, String prompt, int min, int max) {
         while (true) {
             System.out.print(prompt);
@@ -175,16 +214,17 @@ class Account {
         }
     }
 
+    /** 
+     * Returns the valid number based on the min and max and also solve common errors.
+     * 
+     * @param str string value from user.
+     * @param match string value from developer
+     * @return the boolean
+     */
     public static boolean checkValidString(String str, String match) {
         String ifscPattern = "^[a-zA-Z\\s]+";
 
-        if (str.matches(ifscPattern) && str.toLowerCase().equals(match)) return true;
-        return false;
-    }
-
-    public static boolean checkValidNumber(int num, int length) {
-        String strNumber = String.valueOf(num);
-        if (strNumber.length() == length) return true;
+        if (str.matches(ifscPattern) && str.equals(match)) return true;
         return false;
     }
 
@@ -255,7 +295,7 @@ class Account {
 
 class Bank {
     // SBI Bank Code
-    private final int SBI_BANK_CODE = 20;
+    // private final int SBI_BANK_CODE = 20;
     // Create a HashMap to store branches with IFSC code as the key
     private static HashMap<String, BankBranch> branches = new HashMap<>();
     // Create a HashMap to store accounts with Account Number code as the key
@@ -263,28 +303,40 @@ class Bank {
     private static String bankName;
 
     public static void menu(Scanner scanner) {
+        int temp = 0;
         while (true) {
-            // Greeting message
-            System.out.println("\n🏦 Welcome to Devendra Kula Vellalar Bank Account Management System!🇧🇫\n");
-            System.out.println("Please select an option to get started.\n");
+            if (temp == 0) {
+                // Greeting message
+                System.out.println("\n🏦 Welcome to +" + bankName + " Bank Account Management System!\n");
+                System.out.println("Please select an option to get started.\n");
+                temp++;
+            }
 
-            // Diplay details of available options to help the customer decide
-            System.out.println("1. Create a new account");
-            System.out.println("2. View account details");
-            System.out.println("3. Deposit funds");
-            System.out.println("4. Withdraw funds");
-            System.out.println("5. Transfer funds");
-            System.out.println("6. Exit");
+            displayDetails();
             int choice = Account.getValidNumber(scanner, "\nEnter your choice: ", 1, 6);
             if (choice == 6) {
                 System.out.println("Are you sure you want to exit? (yes/no)");
                 String yesOrNo = scanner.nextLine();
-                if (Account.checkValidString(yesOrNo,  "yes")) {
-                    System.out.println("\nThank you for using XYZ Bank Management System! Have a great day! 👋\n");
+                if (Account.checkValidString(yesOrNo.toLowerCase(),  "yes")) {
+                    System.out.println("\nThank you for using " + bankName + " Bank Management System! Have a great day! 👋\n");
                     break;
-                } else System.out.println("\nOperation canceled. Returning to the main menu.\n");
+                } else if (Account.checkValidString(yesOrNo.toLowerCase(),  "no")) {
+                    System.out.println("\nOperation canceled. Returning to the main menu.\n");
+                } else {
+                    System.out.println("⚠️ Invalid input. Please enter [yes|no] only.");
+                }
             } else action(choice, scanner);
         }
+    }
+
+    private static void displayDetails() {
+        // Diplay details of available options to help the customer decide
+        System.out.println("1. Create a new account");
+        System.out.println("2. View account details");
+        System.out.println("3. Deposit funds");
+        System.out.println("4. Withdraw funds");
+        System.out.println("5. Transfer funds");
+        System.out.println("6. Exit");
     }
 
     public static void addBranchDetails() {
@@ -394,7 +446,6 @@ class Bank {
 }
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Bank.addBranchDetails();
