@@ -1,7 +1,10 @@
 import java.math.BigDecimal;
-import java.util.Collection;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -14,6 +17,9 @@ class BankBranch {
     private String ifscCode;
     private String bankNum;
 
+    // A static list to store all branches
+    private static List<BankBranch> branches = new ArrayList<>();
+
     public BankBranch(String bankCode, String bankName, String branchCode, String branchName, String ifscCode) {
         this.bankCode = bankCode;
         this.bankName = bankName;
@@ -21,6 +27,7 @@ class BankBranch {
         this.branchName = branchName;
         this.ifscCode = ifscCode;
         this.bankNum = "01";
+        branches.add(this);
     }
     
     /** 
@@ -44,7 +51,6 @@ class BankBranch {
         return bankName;
     }
 
-    
     /** 
      * @return BranchCode
      */
@@ -64,6 +70,27 @@ class BankBranch {
      */
     public String getIfscCode() {
         return ifscCode;
+    }
+
+    // Static method to display all available branches
+    public static void displayBranches() {
+        for (int i = 0; i < branches.size(); i++) {
+            System.out.println((i + 1) + ". " + branches.get(i).getBranchName() + " (IFSC: " + branches.get(i).getIfscCode() + ")");
+        }
+    }
+
+    // Static method to get the total count of branches
+    public static int getBranchCount() {
+        return branches.size();
+    }
+
+    // Static method to get a branch by its index
+    public static BankBranch getBranchByIndex(int index) {
+        if (index >= 0 && index < branches.size()) {
+            return branches.get(index);
+        } else {
+            throw new IllegalArgumentException("Invalid branch index. Please try again.");
+        }
     }
 }
 
@@ -98,6 +125,7 @@ class Account {
     public Account(String accountHolder, String amount, AccountType accountType, String phone, String email, BankBranch branchDetails) {
         this.accountHolder = accountHolder;
         this.amount = new BigDecimal(amount);
+        this.amount = this.amount.setScale(2, RoundingMode.HALF_UP);
         this.accountType = accountType;
         this.phone = phone;
         this.email = email;
@@ -115,15 +143,28 @@ class Account {
 
     public boolean subtractAmount(String amount) {
         BigDecimal subAmount = new BigDecimal(amount);
-        if (this.amount.compareTo(subAmount) >= 0 && this.amount.compareTo(new BigDecimal(100)) != 0) {
-            this.amount = this.amount.subtract(subAmount);
-            return true;
-        } else {
-            System.out.println("Error: Insufficient funds! Current balance: $" + this.amount);
+        // Minimum balance requirement (can be different for account types)
+        BigDecimal minimumBalance = new BigDecimal(100);
+    
+        // Check if the subAmount is valid (greater than zero)
+        if (subAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println("❌ Error: Amount to withdraw must be greater than zero.");
             return false;
         }
+    
+        // Check if sufficient balance exists
+        if (this.amount.subtract(subAmount).compareTo(minimumBalance) < 0) {
+            System.out.println("❌ Error: Insufficient balance. Your balance cannot drop below $" + minimumBalance + ".");
+            return false;
+        }
+    
+        // Perform the subtraction
+        this.amount = this.amount.subtract(subAmount).setScale(2, RoundingMode.HALF_UP);
+        System.out.println("✅ Success: $" + subAmount + " has been withdrawn.");
+        System.out.println("💰 Remaining balance: $" + this.amount);
+        return true;
     }
-
+    
     public String getAccountHolder() {
         return accountHolder;
     }
@@ -214,54 +255,29 @@ class Account {
         }
     }
 
-    /** 
-     * Returns the valid number based on the min and max and also solve common errors.
-     * 
-     * @param str string value from user.
-     * @param match string value from developer
-     * @return the boolean
-     */
-    public static boolean checkValidString(String str, String match) {
-        String ifscPattern = "^[a-zA-Z\\s]+";
-
-        if (str.matches(ifscPattern) && str.equals(match)) return true;
-        return false;
+    // Static method to print account type details
+    public static void displayAccountTypeDetails() {
+        System.out.println("\n📘 Account Type Details:");
+        System.out.println("1. SAVINGS - Ideal for individuals to save money, interest rates apply.");
+        System.out.println("2. CHECKING - For frequent transactions, no interest is provided.");
+        System.out.println("3. FIXED_DEPOSIT - Lock-in period with higher interest rates.");
+        System.out.println("4. RECURRING_DEPOSIT - Regular deposits for a specified tenure with interest.");
+        System.out.println();
     }
 
-    public static void accountTypeDetails() {
-        // Display details of each account type to help the customer decide
-        System.out.println("\n1. Savings Account");
-        System.out.println("   - Ideal for personal savings with interest.");
-        System.out.println("   - Limited transactions per month.");
-        System.out.println("   - Minimum balance required: $500.");
-        System.out.println();
-
-        System.out.println("2. Checking Account");
-        System.out.println("   - Suitable for frequent transactions.");
-        System.out.println("   - Ideal for individuals and businesses.");
-        System.out.println("   - No interest, but no transaction limits.");
-        System.out.println();
-
-        System.out.println("3. Fixed Deposit Account");
-        System.out.println("   - Lock your funds for a fixed period to earn higher interest.");
-        System.out.println("   - Minimum lock-in period: 6 months.");
-        System.out.println("   - Early withdrawal penalties may apply.");
-        System.out.println();
-
-        System.out.println("4. Recurring Deposit Account");
-        System.out.println("   - Deposit a fixed amount monthly for a set period.");
-        System.out.println("   - Ideal for disciplined saving.");
-        System.out.println("   - Higher interest rate than savings accounts.");
-        System.out.println();
-
-        System.out.println("Please enter the number corresponding to your preferred account type to proceed [1-4].\n");
-    }
-
-    public static AccountType getAccountType(int num) {
-        if (num == 1) return AccountType.SAVINGS;
-        else if (num == 2) return AccountType.CHECKING;
-        else if (num == 3) return AccountType.FIXED_DEPOSIT;
-        return AccountType.RECURRING_DEPOSIT;
+    public static AccountType getAccountType(int choice) {
+        switch (choice) {
+            case 1:
+                return AccountType.SAVINGS;
+            case 2:
+                return AccountType.CHECKING;
+            case 3:
+                return AccountType.FIXED_DEPOSIT;
+            case 4:
+                return AccountType.RECURRING_DEPOSIT;
+            default:
+                throw new IllegalArgumentException("Invalid account type selected.");
+        }
     }
 
     public void createAccountNumber() {
@@ -274,7 +290,6 @@ class Account {
         
         accountNumber = BANK_CODE + "-" + BRANCH_CODE + "-" + CUSTOMER_NUMBER + "-" + ACCOUNT_TYPE_CODE;
         if (!accountNumber.matches(accountPattern)) {
-            System.out.println(accountNumber);
             System.out.println("Error creating account. Please ensure all details are entered correctly.");
             return;
         }
@@ -300,7 +315,7 @@ class Bank {
     private static HashMap<String, BankBranch> branches = new HashMap<>();
     // Create a HashMap to store accounts with Account Number code as the key
     private static HashMap<String, Account> accounts = new HashMap<>();
-    private static String bankName;
+    private static String bankName = "SBI";
 
     public static void menu(Scanner scanner) {
         int temp = 0;
@@ -315,12 +330,12 @@ class Bank {
             displayDetails();
             int choice = Account.getValidNumber(scanner, "\nEnter your choice: ", 1, 6);
             if (choice == 6) {
-                System.out.println("Are you sure you want to exit? (yes/no)");
-                String yesOrNo = scanner.nextLine();
-                if (Account.checkValidString(yesOrNo.toLowerCase(),  "yes")) {
+                System.out.println("");
+                String yesOrNo = getValidYesOrNo(scanner, "Are you sure you want to exit? (yes/no): ");
+                if (yesOrNo.equalsIgnoreCase("yes")) {
                     System.out.println("\nThank you for using " + bankName + " Bank Management System! Have a great day! 👋\n");
                     break;
-                } else if (Account.checkValidString(yesOrNo.toLowerCase(),  "no")) {
+                } else if (yesOrNo.equalsIgnoreCase("no")) {
                     System.out.println("\nOperation canceled. Returning to the main menu.\n");
                 } else {
                     System.out.println("⚠️ Invalid input. Please enter [yes|no] only.");
@@ -348,37 +363,74 @@ class Bank {
         branches.put("SBIN0003344", new BankBranch("SBIN", "State Bank of India", "03344", "Chennai South", "SBIN0003344"));
     }
 
-    private static BankBranch selectBranch(Scanner scanner) {
-        Collection<BankBranch> bankBranches = branches.values();
-
-        int i = 1;
-        HashMap<Integer, String> branchSelectionMap = new HashMap<>();
-        System.out.println("\nAvailable branches for SBI:");
-        for (BankBranch bankBranch : bankBranches) {
-            System.out.println(i + ". Bank Name: " + bankBranch.getBankName() + "; Bank Branch: " + bankBranch.getBranchName());
-            branchSelectionMap.put(i, bankBranch.getIfscCode());
-            i++;
-        }
-        Integer choice = Account.getValidNumber(scanner, "\nPlease choose a number from the list above: ", 1, branchSelectionMap.size());
-        return branches.get(branchSelectionMap.get(choice));
-        
-    }
-
     private static void createNewAccount(Scanner scanner) {
         System.out.println("\n\"✨ Creating a New Bank Account...\"\n");
-        String name = Account.getValidString(scanner, "Enter account holder’s name: ", "name", 0);
-        String amount = Account.getValidString(scanner, "Enter initial deposit amount: ", "amount", 0);
-        String phone = Account.getValidString(scanner, "Enter your phone number: ", "phone", 10);
-        String email = Account.getValidString(scanner, "Enter your email: ", "email", 0);
-        Account.accountTypeDetails();
-        int choice = Account.getValidNumber(scanner, "Please select the type of account: ", 1, 4);
-        Account.AccountType accountType = Account.getAccountType(choice);
+
+        Map<String, String> accountDetails = getAccountDetailsFromUser(scanner);
+
+        Account.AccountType accountType = getAccountTypeFromUser(scanner);
+
         BankBranch branch = selectBranch(scanner);
-        Account user = new Account(name, amount, accountType, phone, email, branch);
-        user.createAccountNumber();
-        accounts.put(user.getAccountNumber(), user);
+
+        Account newAccount = initializeAccount(accountDetails, accountType, branch);
+
+        accounts.put(newAccount.getAccountNumber(), newAccount);
+
+        System.out.println("\n🎉 Account created successfully!");
     }
 
+    private static Map<String, String> getAccountDetailsFromUser(Scanner scanner) {
+        Map<String, String> details = new HashMap<>();
+        details.put("name", Account.getValidString(scanner, "Enter account holder’s name: ", "name", 0));
+        details.put("amount", Account.getValidString(scanner, "Enter initial deposit amount: ", "amount", 0));
+        details.put("phone", Account.getValidString(scanner, "Enter your phone number: ", "phone", 10));
+        details.put("email", Account.getValidString(scanner, "Enter your email: ", "email", 0));
+        return details;
+    }    
+
+    private static Account.AccountType getAccountTypeFromUser(Scanner scanner) {
+        String showDetails = getValidYesOrNo(scanner, "Do you want to see account type details? (yes/no): ");
+        if (showDetails.equalsIgnoreCase("yes")) {
+            Account.displayAccountTypeDetails();
+        }
+        int choice = Account.getValidNumber(scanner, "Please select the type of account (1-4): ", 1, 4);
+        return Account.getAccountType(choice);
+    }
+
+    private static String getValidYesOrNo(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            try {
+                String input = scanner.nextLine().toLowerCase();
+                if (!input.equals("yes") && !input.equals("no")) {
+                    throw new IllegalArgumentException("Please enter 'yes' or 'no'.");
+                }
+                return input;
+            } catch (Exception e) {
+                System.out.println("⚠️ " + e.getMessage());
+            }
+        }
+    }
+    
+    private static BankBranch selectBranch(Scanner scanner) {
+        System.out.println("\nAvailable Branches:");
+        BankBranch.displayBranches(); // Assume this method lists all branches
+        int branchChoice = Account.getValidNumber(scanner, "Select a branch by its number: ", 1, BankBranch.getBranchCount());
+        return BankBranch.getBranchByIndex(branchChoice - 1);
+    }
+
+    private static Account initializeAccount(Map<String, String> details, Account.AccountType accountType, BankBranch branch) {
+        String name = details.get("name");
+        String amount = details.get("amount");
+        String phone = details.get("phone");
+        String email = details.get("email");
+    
+        // Create and initialize the account
+        Account newAccount = new Account(name, amount, accountType, phone, email, branch);
+        newAccount.createAccountNumber();
+        return newAccount;
+    }
+    
     private static void action(int num, Scanner scanner) {
         if (num == 1) createNewAccount(scanner);
         else if (num == 2) viewAccountDetails(scanner);
@@ -388,8 +440,7 @@ class Bank {
     }
 
     private static boolean checkAccount(String accountNumber) {
-        if (accounts.containsKey(accountNumber)) return true;
-        return false;
+        return accounts.containsKey(accountNumber);
     }
 
     private static void viewAccountDetails(Scanner scanner) {
@@ -406,7 +457,7 @@ class Bank {
             Account account = accounts.get(accountNumber);
             String amount = Account.getValidString(scanner, "Enter amount to deposit: ", "amount", 0);
             account.addAmount(amount);
-            System.out.println("Deposit successful! New balance: $" + account.getAmount());
+            System.out.println("Deposit successful! New balance: $" + account.getAmount() + "\n");
         } else System.out.println("\nAccount not found. Please check the account number and try again.\n");
     }
 
@@ -431,12 +482,17 @@ class Bank {
             Account account1 = accounts.get(sender);
             Account account2 = accounts.get(receiver);
             String amount = Account.getValidString(scanner, "Enter the amount to transfer: ", "amount", 0);
-            if (account1.subtractAmount(amount)) {
-                account2.addAmount(amount);
-                System.out.println("\nTransfer successful! New balance: $" + account1.getAmount());
-            } else {
-                System.out.println("\nError: Insufficient funds. Transfer not completed.");
-            }
+            // if (Integer.parseInt(account1.getAmount()) > Integer.parseInt(amount)) {    
+                if (account1.subtractAmount(amount)) {
+                    account2.addAmount(amount);
+                    System.out.println("\nTransfer successful! New balance: $" + account1.getAmount() + "\n");
+                } 
+                // else {
+                //     System.out.println("\n⚠️ An unexpected error occurred. Please try again later.\n");
+                // }
+            // } else {
+            //     System.out.println("\nError: Insufficient funds. Transfer not completed.\n");
+            // }
         } else {
             if (!checkAccount(sender)) System.out.println("Error: Invalid sender account number. Please verify and try again.");
             else System.out.println("Error: Invalid recipient account number. Please verify and try again.");
